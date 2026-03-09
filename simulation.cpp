@@ -1,75 +1,67 @@
 #include <iostream>
-using namespace std;
 #include <cstdlib>
-#include <windows.h>
-#include <cmath>
 #include <ctime>
+#include <windows.h>
 
+using namespace std;
 
 int patients = 5;
-int docters = 1;    
+int service_time = 5;
+float mean_inter_arrival_time = 10;
 
-float lq = 0;                                    // average number of patients in the queue
-float l = 0;
-float wq = 0;
-float w = 0;
-float mean_inter_arrival_time = 10;            // average time between patient arrivals
-float lambda = 1.0 / mean_inter_arrival_time;    // arrival rate of patients
-int service_time = 5;                        // average service time for each patient
+void simulation()
+{
+    float lambda = 1.0 / mean_inter_arrival_time;
+    float mu = 1.0 / service_time;
 
+    float rho = lambda / mu;
 
+    float Lq = (rho*rho)/(1-rho);
+    float L  = rho/(1-rho);
+    float Wq = Lq/lambda;
+    float W  = 1/(mu-lambda);
+    float P0 = (1 - rho) * 100;
 
+    cout << "--- FORMULA RESULTS ---\n";
+    cout << "Lq: Average number of patients in queue: " << Lq << endl;
+    cout << "L : Average number of patients in system: " << L << endl;
+    cout << "Wq: Average waiting time in queue: " << Wq << endl;
+    cout << "W : Average time spent in system: " << W << endl;
+    cout << "P0: Probability of zero patients in system: " << P0 << "%\n";
 
-void doctor(int patient, int service_time) {
-    cout << "Doctor is treating patient " << patient << "." << endl;
+    cout << "\n--- SIMULATION ---\n";
 
-    Sleep(service_time * 1000); // Simulate treatment time in milliseconds
+    int arrival_time = 0;
+    int doctor_free_time = 0;
 
-    cout << "Doctor finished patient " << patient << "." << endl;
-}
+    for(int i=1;i<=patients;i++)
+    {
+        int interarrival = rand()%10 + 1;
+        arrival_time += interarrival;
 
+        cout << "\nPatient " << i << " arrives at " << arrival_time << endl;
 
+        int service_start;
 
-void simulation() {
-    cout << lambda << endl;
-    float u = 1.0 / service_time;       // utilization of the system
-    float p = lambda / u;  // traffic intensity of system
-    lq = p*p / (1-p);                 // average number of patients in the queue
-    wq = lq / lambda;                 // average waiting time in the queue
-    w = wq + 1 / u;                   // average time a patient spends in the system
-    l = lambda * w;                   // average number of patients in the system
-    float server_idle_time = (1 - p) * 100;   // percentage of time the doctor is idle
+        if (arrival_time < doctor_free_time) {
+            cout << "Doctor busy - patient waits in queue\n";
+            service_start = doctor_free_time;
+        }
+        else {
+            service_start = arrival_time;
+        }
 
-
-    cout << "Traffic intensity (p): " << p << endl;
-    cout << "Utilization (u): " << u << endl;
-    cout << "Average waiting time in queue (wq): " << wq << " seconds" << endl;
-    cout << "Average number of patients in queue (lq): " << lq << endl;
-    cout << "Average time a patient spends in system (w): " << w << " seconds" << endl;
-    cout << "Average number of patients in system (l): " << l << endl;
-    cout << "Server idle time: " << server_idle_time << "%" << endl;
-
-
-
-    int patient = 0;
-    int time = 0;
-    int i = 1;
-
-    while(patient < 5){
-        patient++;
-        i = rand() % 10 + 1;
-        time += i;
-
-        cout << "Patient " << patient << " arrived at time " << time << " seconds." << endl;
-        doctor(patient, service_time);
-        // i = -log(u) / lambda; // Generate inter-arrival time using exponential distribution
-
+        int waiting_time = service_start - arrival_time;
+        cout << "Waiting time: " << waiting_time << endl;
+        doctor_free_time = service_start + service_time;
+        cout << "Doctor treating patient " << i << endl;
+        Sleep(service_time*1000);
+        cout << "will finish at " << doctor_free_time << endl;
     }
-
 }
 
-int main() {
+int main()
+{
     srand(time(0));
     simulation();
-    return 0;
 }
