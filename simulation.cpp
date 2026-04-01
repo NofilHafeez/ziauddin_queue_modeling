@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <queue>
+#include <cmath>
 
 using namespace std;
 
@@ -39,12 +40,24 @@ void simulation()
 
     cout << "\n--- SIMULATION ---\n";
 
-    int arrival_time = 0;
-    int doctor_free_time = 0;
+    double arrival_time = 0;
+    double doctor_free_time = 0;
 
     for (int i = 1; i <= patients; i++)   
     {
-        int interarrival = rand() % mean_inter_arrival_time + 1;
+        // int interarrival = rand() % mean_inter_arrival_time + 1; - wrongggg!!
+
+        // F(t)=P(T≤t)= 1 − e ^(−λt)
+        double interarrival = -log(1.0 - ((double)rand() / RAND_MAX)) / lambda;  // correcttt!!
+
+        // (double)rand() / RAND_MAX   // generates,   U ∈ [0,1)
+        // 1.0 - ((double)rand() / RAND_MAX) // computes,   1 - U
+        // -log(1.0 - ((double)rand() / RAND_MAX)) // computes.   -ln(1-U)
+        // -log(1.0 - ((double)rand() / RAND_MAX)) / lambda //,   divide by λ to get exponential sample
+        
+        interarrival =  round(interarrival * 100.0) / 100.0; // round up to nearest integer
+
+
         arrival_time += interarrival;
 
         cout << "\nPatient " << i << " arrives at t=" << arrival_time << endl;
@@ -56,8 +69,8 @@ void simulation()
             int at  = waitingQueue.front().second;
             waitingQueue.pop();
 
-            int service_start = doctor_free_time;
-            int waiting_time = service_start - at;
+            double service_start = doctor_free_time;
+            double waiting_time = service_start - at;
 
             cout << "Serving queued patient " << pid << endl;
             cout << "Waiting time: " << waiting_time << endl;
@@ -78,7 +91,7 @@ void simulation()
         else
         {
             // Doctor free → serve current patient
-            int service_start = arrival_time;
+            double service_start = arrival_time;
             int waiting_time = 0;
 
             cout << "Waiting time: " << waiting_time << endl;

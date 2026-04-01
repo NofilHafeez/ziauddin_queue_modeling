@@ -49,13 +49,14 @@ int simulation()
 
     cout << "\n--- SIMULATION ---\n";
 
-    int arrival_time = 0;
-    int doctor_free_time1 = 0;
-    int doctor_free_time2 = 0;
+    double arrival_time = 0;
+    double doctor_free_time1 = 0;
+    double doctor_free_time2 = 0;
 
     for (int i = 1; i <= patients; i++)
     {
-        int interarrival = rand() % mean_inter_arrival_time + 1;
+        double interarrival = -log(1.0 - ((double)rand() / RAND_MAX)) / lambda;  // correcttt!!
+        interarrival =  round(interarrival * 100.0) / 100.0; // round up to nearest integer
         arrival_time += interarrival;
 
         cout << "\nPatient " << i << " arrives at t=" << arrival_time << endl;
@@ -67,12 +68,12 @@ int simulation()
             // choose earlier available doctor
             if (doctor_free_time1 <= doctor_free_time2 && !waitingQueue1.empty())
             {
-                int pid = waitingQueue1.front().first;
-                int at  = waitingQueue1.front().second;
+                double pid = waitingQueue1.front().first;
+                double at  = waitingQueue1.front().second;
                 waitingQueue1.pop();
 
-                int service_start = doctor_free_time1;
-                int waiting_time = service_start - at;
+                double service_start = doctor_free_time1;
+                double waiting_time = service_start - at;
 
                 cout << "Serving queued patient " << pid << endl;
                 cout << "Waiting time: " << waiting_time << endl;
@@ -83,12 +84,12 @@ int simulation()
             }
             else if (!waitingQueue2.empty())
             {
-                int pid = waitingQueue2.front().first;
-                int at  = waitingQueue2.front().second;
+                double pid = waitingQueue2.front().first;
+                double at  = waitingQueue2.front().second;
                 waitingQueue2.pop();
 
-                int service_start = doctor_free_time2;
-                int waiting_time = service_start - at;
+                double service_start = doctor_free_time2;
+                double waiting_time = service_start - at;
 
                 cout << "Serving queued patient " << pid << endl;
                 cout << "Waiting time: " << waiting_time << endl;
@@ -126,8 +127,8 @@ int simulation()
         else
         {
             //  assign to correct doctor
-            int service_start = arrival_time;
-            int waiting_time = 0;
+            double service_start = arrival_time;
+            double waiting_time = 0;
 
             cout << "Waiting time: " << waiting_time << endl;
             cout << "Doctor treating patient " << i << endl;
@@ -150,12 +151,12 @@ int simulation()
     {
         if (doctor_free_time1 <= doctor_free_time2 && !waitingQueue1.empty())
         {
-            int pid = waitingQueue1.front().first;
-            int at  = waitingQueue1.front().second;
+            double pid = waitingQueue1.front().first;
+            double at  = waitingQueue1.front().second;
             waitingQueue1.pop();
 
-            int service_start = doctor_free_time1;
-            int waiting_time = service_start - at;
+            double service_start = doctor_free_time1;
+            double waiting_time = service_start - at;
 
             cout << "\nServing queued patient " << pid << endl;
             cout << "Waiting time: " << waiting_time << endl;
@@ -166,12 +167,12 @@ int simulation()
         }
         else if (!waitingQueue2.empty())
         {
-            int pid = waitingQueue2.front().first;
-            int at  = waitingQueue2.front().second;
+            double pid = waitingQueue2.front().first;
+            double at  = waitingQueue2.front().second;
             waitingQueue2.pop();
 
-            int service_start = doctor_free_time2;
-            int waiting_time = service_start - at;
+            double service_start = doctor_free_time2;
+            double waiting_time = service_start - at;
 
             cout << "\nServing queued patient " << pid << endl;
             cout << "Waiting time: " << waiting_time << endl;
